@@ -1,0 +1,30 @@
+{
+  "name": "personal_ai_challenge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dwikavindra-astro/personal-ai-challenge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dwikavindra-astro/personal-ai-challenge/issues"
+  },
+  "homepage": "https://github.com/dwikavindra-astro/personal-ai-challenge#readme",
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.4.0",
+    "vite": "^8.0.14"
+  },
+  "dependencies": {
+    "turndown": "^7.2.4"
+  }
+}

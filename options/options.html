@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="options.css" />
+  <title>Dashboard Guide — Settings</title>
+</head>
+<body>
+  <main class="card">
+    <h1>Dashboard Guide — Settings</h1>
+    <p class="hint">Your DeepSeek API key is stored locally in <code>chrome.storage.local</code> on this machine only. It never leaves the browser except to call <code>api.deepseek.com</code>. Get a key at <code>platform.deepseek.com</code> → API Keys.</p>
+
+    <label class="label" for="apiKey">DeepSeek API key</label>
+    <div class="row">
+      <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+      <button id="toggleVisibility" type="button" class="ghost">Show</button>
+    </div>
+
+    <label class="label" for="model">Model</label>
+    <select id="model">
+      <option value="deepseek-v4-flash">deepseek-v4-flash (1M ctx, fast, default)</option>
+      <option value="deepseek-v4-pro">deepseek-v4-pro (1M ctx, smartest)</option>
+      <option value="deepseek-chat">deepseek-chat (legacy alias of v4-flash non-thinking)</option>
+      <option value="deepseek-reasoner">deepseek-reasoner (legacy alias of v4-flash thinking)</option>
+    </select>
+
+    <label class="label" for="thinkingMode">Thinking mode</label>
+    <select id="thinkingMode">
+      <option value="enabled">enabled (recommended — extended reasoning)</option>
+      <option value="disabled">disabled (faster, cheaper)</option>
+    </select>
+
+    <label class="label" for="reasoningEffort">Reasoning effort (when thinking enabled)</label>
+    <select id="reasoningEffort">
+      <option value="high">high (default)</option>
+      <option value="max">max (deepest reasoning, slowest)</option>
+    </select>
+
+    <div class="actions">
+      <button id="save" type="button" class="primary">Save</button>
+      <button id="test" type="button" class="ghost">Test connection</button>
+      <button id="clear" type="button" class="ghost danger">Clear key</button>
+    </div>
+
+    <div id="status" class="status hidden"></div>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

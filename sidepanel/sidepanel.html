@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="sidepanel.css" />
+  <title>Dashboard Guide Agent</title>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>Dashboard Guide</span>
+    </div>
+    <button id="openOptions" class="link" type="button">Settings</button>
+  </header>
+
+  <section id="keyBanner" class="banner hidden">
+    No API key set. <button id="bannerOptions" class="link inline" type="button">Add one in Settings</button>.
+  </section>
+
+  <section class="ask">
+    <label class="ask-label" for="askInput">Ask the guide</label>
+    <div class="ask-row">
+      <input id="askInput" type="text" placeholder='e.g. "how do I make a new order?"' autocomplete="off" />
+      <button id="askBtn" class="primary" type="button">Go</button>
+    </div>
+  </section>
+
+  <section class="add-flow">
+    <div class="section-title">Add a flow</div>
+    <div id="dropZone" class="drop-zone">
+      <div class="drop-zone-idle">
+        <strong>Drop a .md file here</strong>
+        <span>or</span>
+        <button id="addFlowBtn" class="ghost" type="button">Choose file…</button>
+        <input id="addFlowInput" type="file" accept=".md,text/markdown" hidden multiple />
+      </div>
+      <div class="drop-zone-busy" hidden>
+        <div class="drop-zone-spinner"></div>
+        <span id="dropZoneBusyLabel">Normalising flow with agent…</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="flows">
+    <div class="section-title">Flows</div>
+    <div id="flowList" class="flow-list"></div>
+  </section>
+
+  <section class="log">
+    <div class="section-title">Activity</div>
+    <div id="log" class="log-body"></div>
+  </section>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>
