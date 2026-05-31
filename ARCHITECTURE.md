@@ -107,9 +107,6 @@ Each parsed flow has a `mode` field set by `parseFlow` (sidepanel.js):
 - **agent** — markdown has `mode: agent`, OR has `goal:` field and no H2
   sections. `runAgentStep` runs in a loop (max 20 iterations) until the
   agent returns `done: true`, user closes, or cap is hit.
-- **adhoc** — synthesised when the **Ask the guide** input has no trigger
-  match. Becomes an in-memory agent flow with `goal = the question` and
-  no URL scope; the full knowledge base picks up the slack.
 
 ## URL scope
 
@@ -164,7 +161,7 @@ moved pointer forward to step N" when this happens. So if the user clicked
 through steps 1+2 manually, the assessor sees the post-step-2 page and
 fast-forwards to step 3.
 
-## Agent pipeline (free-form / adhoc)
+## Agent pipeline (free-form)
 
 For agent-mode flows (no enumerated steps). Two parallel reasoners + local
 merge.
@@ -492,8 +489,8 @@ After a correction, if `activeFlow.source === 'user'`,
 - `startFlow` seeds `learnedRules = [...flow.persistedRules]` on every
   run so the saved corrections apply immediately.
 
-Bundled flows + adhoc questions are NOT persisted — they stay ephemeral
-(rules apply this session only, lost on flow end).
+Bundled flows are NOT persisted — they stay ephemeral (rules apply this
+session only, lost on flow end).
 
 ## Loading view
 
@@ -513,7 +510,7 @@ mutations; the response is held until the page has been still for 500ms (max
 The tooltip header (in step view AND chat view) carries a Close × button.
 Click → fires `STEP_ADVANCE {action: 'close'}` → side panel
 `endFlow('user-closed')` → `CLEAR_OVERLAY`. Works for all modes (scripted,
-agent, adhoc, mid-chat).
+agent, mid-chat).
 
 ## Alternatives (multi-equivalent picks)
 

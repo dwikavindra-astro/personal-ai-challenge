@@ -93,14 +93,14 @@ Parsing: `gray-matter` for frontmatter + a small parser for the H2 sections, or 
 ~20-line regex since the structure is regular. Bundle `flows/*.md` into a
 `flows.json` at build time so the extension loads them synchronously.
 
-## The two AI calls
+## The AI calls
 
-**1. Intent match** (query -> flow id)
-Start cheap: string-match the user's query against each flow's `triggers`. Upgrade
-to a Claude call (query + list of `{id, title, triggers}` -> best match or "none")
-only if the demo shows obvious misses.
+> **Update:** Intent match (the "Ask anything" path) was descoped before
+> v0.1.0. Users start flows by clicking a card in the side panel or dragging
+> in a `.md` file — no free-form question box. The `triggers:` field is still
+> parsed and stored on disk for future use.
 
-**2. Translate** (step prose + distilled DOM -> action)
+**Translate** (step prose + distilled DOM -> action)
 This is the core. Prompt returns JSON:
 
 ```json
@@ -116,10 +116,6 @@ This is the core. Prompt returns JSON:
 If `confidence` is low, surface it to the user ("I think you mean this — right?")
 rather than silently picking. The `reasoning` field makes live-demo debugging much
 easier.
-
-Free-form questions with no matching flow collapse into a single-step translate
-call — the question itself becomes the step prose. So we don't have to author
-every possible thing someone might ask.
 
 ### Translator prompt sketch
 
@@ -267,7 +263,8 @@ audience.
    animation feeling smooth against a hardcoded selector before any LLM is involved.
 5. **Wire it together.** Pick flow -> loop steps -> translate -> point + highlight
    -> Next.
-6. **"Ask anything" path.** Typed question -> one-step translate -> point at element.
+6. ~~**"Ask anything" path.** Typed question -> one-step translate -> point at
+   element.~~ *(Descoped before v0.1.0 — see note in "The AI calls" section.)*
 7. **Extension scaffolding.** Manifest, content script, side panel, options page,
    message passing.
 8. **Demo polish.** Cursor easing, low-confidence UX, "element not on page" state,
@@ -293,7 +290,7 @@ audience.
 - [ ] API key via options page (cleaner) vs hardcoded config (faster for POC)
 - [ ] Plain TS vs React for the side panel UI (TS is lighter at this scale)
 - [ ] Flows bundled at build time vs fetched from a URL (bundled = simpler POC)
-- [ ] Intent match: trigger string-match (start here) vs Claude call (upgrade later)
+- [x] ~~Intent match: trigger string-match vs Claude call~~ — descoped; flows are launched by clicking a card or dropping a `.md` file, not by typing a question.
 - [ ] Cursor style: realistic pointer vs branded custom shape
 
 ## Prerequisites

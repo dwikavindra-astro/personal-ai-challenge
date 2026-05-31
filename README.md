@@ -12,23 +12,33 @@ the agent points, highlights, and narrates. It never clicks for you.
 
 - Chrome (or any Chromium ≥ 114 with `chrome.sidePanel` support)
 - A DeepSeek API key (the user supplies their own — there is no backend)
-- Node ≥ 18 to build
 
-## Install (5 minutes)
+## Install (2 minutes)
+
+1. Go to the [Releases](../../releases) page and download `dashboard-guide.zip`
+   from the latest release.
+2. Unzip it into a permanent folder (do **not** delete the folder afterwards —
+   Chrome reads the files live from disk).
+3. Open `chrome://extensions`.
+4. Toggle **Developer mode** on (top right).
+5. Click **Load unpacked** and pick the unzipped folder.
+6. Click the extension's puzzle-piece icon and pin **Dashboard Guide Agent**.
+
+To update later: download the new zip, unzip over the same folder (or into a
+new one and re-pick it via **Load unpacked**), then hit the reload icon on
+the extension card.
+
+### Build from source instead
+
+If you'd rather build it yourself (Node ≥ 18 required):
 
 ```bash
 npm install
-npm run build
+npm run build      # outputs dist/
 ```
 
-That produces a fully-packaged unpacked extension in `dist/`.
-
-In Chrome:
-
-1. Open `chrome://extensions`
-2. Toggle **Developer mode** on (top right)
-3. Click **Load unpacked**, pick the `dist/` folder
-4. Click the extension's puzzle-piece icon and pin **Dashboard Guide Agent**
+Then **Load unpacked** → pick `dist/`. `npm run release` rebuilds and zips
+`dist/` into `dashboard-guide.zip` for distribution.
 
 ## Drop in your DeepSeek API key
 
@@ -57,17 +67,10 @@ nowhere else.
 
 1. Open any normal site — start with `https://www.google.com` (the smoke test)
 2. Click the extension's toolbar icon → side panel opens
-3. Three ways to drive the guide:
+3. Two ways to drive the guide:
    - **Click a flow card** in the side panel to run a specific authored flow.
    - **Drag a `.md` file** onto the drop zone to add your own flow at runtime
      — no rebuild, persists in `chrome.storage.local`.
-   - **Ask anything** in plain English (e.g. *"how do I add an order?"*).
-     The trigger matcher tries each authored flow's `triggers:` list; on a
-     match it runs that flow. On no match, the side panel launches an
-     **adhoc agent** with your question as the goal and the full knowledge
-     base (titles, goals, hints, step text from every authored flow) injected
-     into the prompt — so the agent correlates the question against what
-     you've documented and figures out the path itself.
 4. Watch the cursor fly. Either click the highlighted element (or press Enter
    if it's an input) to auto-advance, or hit **Next** in the tooltip.
 5. **A spinner shows up between steps.** That's the agent re-checking the page
@@ -99,9 +102,8 @@ nowhere else.
    - **Apply** — fires the rule distillation: 0–3 durable rules extracted
      from the conversation + the live DOM, appended to the flow's
      `learnedRules`, **persisted into the flow's markdown** (if it's one
-     of your user flows — bundled flows and adhoc questions stay
-     ephemeral), then the current step re-runs with the new rules
-     applied. Chat clears.
+     of your user flows — bundled flows stay ephemeral), then the current
+     step re-runs with the new rules applied. Chat clears.
    - **← Back** — bail out of chat without applying. Keeps the conversation
      for next time you reopen.
    Page-state watcher is suppressed while chat is open so a stray edit on
@@ -265,7 +267,7 @@ The model knows about live input state:
 | `id`         | both      | Required. Unique slug — re-adding a flow with the same id overwrites.                  |
 | `title`      | both      | Human-readable name shown in the side panel.                                           |
 | `url`        | both      | Chrome-style glob (`*`) or list of globs. Flow refuses to start on a non-matching tab. |
-| `triggers`   | both      | Optional list of phrases the **Ask the guide** box matches against.                    |
+| `triggers`   | both      | Optional list of phrases (stored in markdown for reference; no UI consumer currently). |
 | `mode`       | both      | `agent` or `scripted`. Defaults to `agent` if `goal:` is set and no `## Step` exists.  |
 | `goal`       | agent     | Required for agent mode. The end state, in plain English.                              |
 | body prose   | agent     | Becomes hints injected into every agent call.                                          |
