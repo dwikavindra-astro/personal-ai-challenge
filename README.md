@@ -137,8 +137,12 @@ canonical flow form before saving:
   wall-clock, not N×.
 
 The normalised flow shows up immediately under **Your flows** and survives
-Chrome restarts (persisted to `chrome.storage.local`). Click the **×** on
-any user flow to delete it.
+Chrome restarts (persisted to `chrome.storage.local`). On any user flow:
+
+- **↓** — download the flow's raw markdown as `<id>.md` (useful for backup
+  or sharing). Includes any chat-distilled rules persisted into the
+  frontmatter.
+- **×** — delete the flow.
 
 If the ingestion agent fails (no API key, timeout, etc.) the raw markdown
 gets saved as-is and the parser falls back to agent mode using the body as

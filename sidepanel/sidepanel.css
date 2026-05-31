@@ -189,10 +189,10 @@ body {
   position: relative;
 }
 
-.flow-delete {
+.flow-delete,
+.flow-download {
   position: absolute;
   top: 6px;
-  right: 6px;
   background: transparent;
   border: none;
   color: #94a3b8;
@@ -203,9 +203,17 @@ body {
   cursor: pointer;
 }
 
+.flow-delete  { right: 6px; }
+.flow-download { right: 30px; }
+
 .flow-delete:hover {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.flow-download:hover {
+  background: #ede9fe;
+  color: #6d28d9;
 }
 
 .flow-item {

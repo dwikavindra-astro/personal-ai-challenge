@@ -558,6 +558,17 @@ function renderFlowItem(flow) {
   btn.addEventListener('click', () => startFlow(flow));
 
   if (flow.source === 'user') {
+    const dl = document.createElement('button');
+    dl.type = 'button';
+    dl.className = 'flow-download';
+    dl.title = 'Download this flow as markdown';
+    dl.textContent = '↓';
+    dl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportUserFlow(flow.id);
+    });
+    btn.appendChild(dl);
+
     const del = document.createElement('button');
     del.type = 'button';
     del.className = 'flow-delete';
@@ -571,6 +582,25 @@ function renderFlowItem(flow) {
   }
 
   return btn;
+}
+
+async function exportUserFlow(id) {
+  const { userFlows = [] } = await chrome.storage.local.get('userFlows');
+  const entry = userFlows.find(f => f.id === id);
+  if (!entry || !entry.raw) {
+    log(`Couldn't find raw markdown for "${id}".`, 'error');
+    return;
+  }
+  const blob = new Blob([entry.raw], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${id}.md`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  log(`Exported "${id}.md".`, 'ok');
 }
 
 function markActiveFlow(flowId) {
