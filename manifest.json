@@ -3,7 +3,7 @@
   "name": "Dashboard Guide Agent",
   "version": "0.1.0",
   "description": "AI guide that points at the right element on a page and tells you what to do.",
-  "permissions": ["storage", "activeTab", "tabs", "sidePanel", "scripting"],
+  "permissions": ["storage", "activeTab", "tabs", "sidePanel", "scripting", "alarms"],
   "host_permissions": [
     "https://api.deepseek.com/*",
     "<all_urls>"

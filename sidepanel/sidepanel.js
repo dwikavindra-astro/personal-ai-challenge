@@ -104,6 +104,16 @@ function wireUi() {
       return;
     }
   });
+
+  // Live-refresh the API-key banner when the options page writes a new key
+  // (or clears it). Without this the banner only reflects the value seen at
+  // side-panel init — saving in options leaves a stale "no key" warning.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    if (changes.deepseekApiKey || changes.anthropicApiKey) {
+      checkApiKey();
+    }
+  });
 }
 
 // -------- Page-state change handling --------
@@ -442,21 +452,25 @@ async function ingestOne(file) {
     return;
   }
 
-  log(`Ingesting "${file.name}" — normalising with agent…`, 'info');
   let mdToSave = raw;
-  try {
-    const resp = await chrome.runtime.sendMessage({
-      type: 'INGEST_FLOW',
-      payload: { raw, filename: file.name },
-    });
-    if (resp && resp.ok && typeof resp.canonicalMd === 'string' && resp.canonicalMd.trim()) {
-      mdToSave = resp.canonicalMd.trim();
-      log(`Normalised "${file.name}" via agent.`, 'ok');
-    } else {
-      log(`Ingestion agent unavailable for "${file.name}": ${resp && resp.error || 'no response'}. Saving raw markdown.`, 'warn');
+  if (isAlreadyCanonical(raw)) {
+    log(`"${file.name}" already has canonical frontmatter — skipping ingestion agent.`, 'info');
+  } else {
+    log(`Ingesting "${file.name}" — normalising with agent…`, 'info');
+    try {
+      const resp = await chrome.runtime.sendMessage({
+        type: 'INGEST_FLOW',
+        payload: { raw, filename: file.name },
+      });
+      if (resp && resp.ok && typeof resp.canonicalMd === 'string' && resp.canonicalMd.trim()) {
+        mdToSave = resp.canonicalMd.trim();
+        log(`Normalised "${file.name}" via agent.`, 'ok');
+      } else {
+        log(`Ingestion agent unavailable for "${file.name}": ${resp && resp.error || 'no response'}. Saving raw markdown.`, 'warn');
+      }
+    } catch (e) {
+      log(`Ingestion error for "${file.name}": ${e && e.message || e}. Saving raw markdown.`, 'warn');
     }
-  } catch (e) {
-    log(`Ingestion error for "${file.name}": ${e && e.message || e}. Saving raw markdown.`, 'warn');
   }
 
   let parsed;
@@ -1147,6 +1161,19 @@ async function sendToActiveTab(msg) {
 }
 
 // -------- Flow parser --------
+
+// True when the raw markdown's frontmatter already carries the fields the
+// ingestion agent would otherwise produce. Lets us skip the LLM round-trip
+// for hand-authored or previously-exported flows.
+function isAlreadyCanonical(raw) {
+  const m = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
+  if (!m) return false;
+  const meta = parseFrontmatter(m[1]);
+  const hasSteps = /^##\s+/m.test(m[2]);
+  const modeOk = meta.mode === 'scripted' || meta.mode === 'agent';
+  const targetOk = (meta.mode === 'scripted' && hasSteps) || (meta.mode === 'agent' && !!meta.goal);
+  return !!(meta.id && meta.title && meta.url && modeOk && targetOk);
+}
 
 function parseFlow(raw, path) {
   const fm = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);

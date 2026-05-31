@@ -14,7 +14,25 @@ chrome.runtime.onInstalled.addListener(async () => {
   } catch (e) {
     console.warn('[dga] sidePanel.setPanelBehavior failed', e);
   }
+  ensureKeepaliveAlarm();
 });
+
+// MV3 idles the service worker after ~30s with no events, which adds a
+// noticeable cold-start latency to the next LLM call. A periodic alarm
+// fires often enough to reset the idle timer so a user mid-flow gets
+// warm-path latency. Period is 0.42 min (~25s) — under Chrome's 30s
+// shutdown window but well above the 0.5 min minimum for alarms.
+const KEEPALIVE_ALARM = 'dga-keepalive';
+function ensureKeepaliveAlarm() {
+  try {
+    chrome.alarms.create(KEEPALIVE_ALARM, { periodInMinutes: 0.42 });
+  } catch (e) {
+    console.warn('[dga] keepalive alarm failed', e);
+  }
+}
+chrome.runtime.onStartup.addListener(ensureKeepaliveAlarm);
+ensureKeepaliveAlarm();
+chrome.alarms.onAlarm.addListener(() => { /* wake-only */ });
 
 chrome.action.onClicked.addListener(async (tab) => {
   try {

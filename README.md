@@ -8,12 +8,21 @@ ring around it, and pops a tooltip explaining what to do.
 This is the POC build described in [PLAN.md](./PLAN.md). It is **tutorial only**:
 the agent points, highlights, and narrates. It never clicks for you.
 
+**[Watch the demo](https://drive.google.com/file/d/1bOdHYwtV2paXVfYVXDPG4ySxvVmHlS0d/view?usp=sharing)** — see it run end-to-end before installing.
+
 ## What you need
 
 - Chrome (or any Chromium ≥ 114 with `chrome.sidePanel` support)
 - A DeepSeek API key (the user supplies their own — there is no backend)
 
 ## Install (2 minutes)
+
+> **Why developer mode?** Publishing to the Chrome Web Store costs a one-time
+> $5 developer fee. Since this is built for the AI challenge and not a real
+> product, paying to list it isn't worth it. Instead you install it locally
+> via Chrome's Developer mode — same code, just sideloaded from a folder.
+> Follow the steps below, or [**watch the install video**](https://drive.google.com/file/d/18L-nsSSO3bGPhJl-v8GVB-zjdcjxpz-R/view?usp=sharing)
+> if anything is unclear.
 
 1. Go to the [Releases](../../releases) page and download `dashboard-guide.zip`
    from the latest release.
