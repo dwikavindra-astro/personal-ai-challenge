@@ -9,8 +9,6 @@ const AGENT_MAX_ITER = 20;
 
 const els = {
   flowList: document.getElementById('flowList'),
-  askInput: document.getElementById('askInput'),
-  askBtn: document.getElementById('askBtn'),
   log: document.getElementById('log'),
   openOptions: document.getElementById('openOptions'),
   bannerOptions: document.getElementById('bannerOptions'),
@@ -58,10 +56,6 @@ async function init() {
 function wireUi() {
   els.openOptions.addEventListener('click', () => chrome.runtime.openOptionsPage());
   els.bannerOptions.addEventListener('click', () => chrome.runtime.openOptionsPage());
-  els.askBtn.addEventListener('click', onAsk);
-  els.askInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') onAsk();
-  });
 
   // Drop zone + file picker
   els.addFlowBtn.addEventListener('click', () => els.addFlowInput.click());
@@ -601,33 +595,6 @@ function log(msg, level = 'info') {
 
 // -------- Flow lifecycle --------
 
-async function onAsk() {
-  const q = els.askInput.value.trim();
-  if (!q || busy) return;
-
-  const matched = matchTrigger(q);
-  if (matched) {
-    log(`Matched flow: ${matched.title}`, 'ok');
-    startFlow(matched);
-    return;
-  }
-  // No trigger match → adhoc agent flow. The agent loop has the full knowledge
-  // base of authored flows injected into every call, so it can correlate the
-  // question against what the user has documented.
-  log(`No trigger matched "${q}" — running agent with your knowledge base.`, 'info');
-  startFlow({
-    id: 'adhoc',
-    title: q,
-    triggers: [],
-    urlPatterns: [],
-    mode: 'agent',
-    goal: q,
-    hints: '',
-    steps: [],
-    source: 'adhoc',
-  });
-}
-
 // Aggregate every parsed flow into a compact knowledge corpus that the agent
 // gets on every iteration. Lets the model correlate the user's question
 // (e.g. "how do I add an order?") with what the user has authored
@@ -637,8 +604,6 @@ function buildKnowledge(currentUrl) {
   const sections = [];
   for (const f of flows) {
     if (!f) continue;
-    // Skip the adhoc flow itself if it ever sneaks in.
-    if (f.source === 'adhoc') continue;
     // Prefer flows scoped to the current page, but include unscoped ones too.
     const scopeRelevant = !f.urlPatterns || f.urlPatterns.length === 0
       ? true
@@ -667,25 +632,6 @@ function buildKnowledge(currentUrl) {
 function truncate(s, max) {
   if (typeof s !== 'string') return '';
   return s.length <= max ? s : s.slice(0, max - 3) + '...';
-}
-
-function matchTrigger(query) {
-  const q = query.toLowerCase();
-  let best = null;
-  let bestScore = 0;
-  for (const f of flows) {
-    for (const t of f.triggers) {
-      const tl = t.toLowerCase();
-      if (q.includes(tl) || tl.includes(q)) {
-        const score = Math.min(tl.length, q.length);
-        if (score > bestScore) {
-          best = f;
-          bestScore = score;
-        }
-      }
-    }
-  }
-  return best;
 }
 
 async function startFlow(flow) {
@@ -718,7 +664,6 @@ async function startFlow(flow) {
   }
   activeFlow = flow;
   markActiveFlow(flow.id);
-  els.askInput.value = '';
   // Seed learnedRules with any persisted corrections from the flow's
   // frontmatter so prior chat-distilled rules apply on this run.
   learnedRules = Array.isArray(flow.persistedRules) ? [...flow.persistedRules] : [];
@@ -807,7 +752,6 @@ async function endFlow(reason) {
   overrideArmed = false;
   learnedRules = [];
   busy = false;
-  els.askBtn.disabled = false;
   markActiveFlow(null);
   await sendToActiveTab({ type: 'CLEAR_OVERLAY' }).catch(() => {});
 }
@@ -818,7 +762,6 @@ async function runCurrentStep() {
   if (!activeFlow || busy) return;
   const myEpoch = ++runEpoch;
   busy = true;
-  els.askBtn.disabled = true;
   try {
     const step = activeFlow.steps[stepIndex];
     log(`Step ${stepIndex + 1}/${activeFlow.steps.length}: ${step.text}`, 'info');
@@ -914,7 +857,6 @@ async function runCurrentStep() {
     log(`Step error: ${e && e.message || e}`, 'error');
   } finally {
     busy = false;
-    els.askBtn.disabled = false;
   }
 }
 
@@ -930,7 +872,6 @@ async function runAgentStep(opts = {}) {
   }
   const myEpoch = ++runEpoch;
   busy = true;
-  els.askBtn.disabled = true;
   try {
     log(`Agent iteration ${agentState.iter + 1}/${agentState.maxIter} — goal: ${activeFlow.goal}`, 'info');
 
@@ -1015,7 +956,6 @@ async function runAgentStep(opts = {}) {
     log(`Agent step error: ${e && e.message || e}`, 'error');
   } finally {
     busy = false;
-    els.askBtn.disabled = false;
   }
 }
 

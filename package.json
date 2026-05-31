@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "npm run build && rm -f dashboard-guide.zip && cd dist && zip -r ../dashboard-guide.zip . && cd .."
   },
   "repository": {
     "type": "git",
